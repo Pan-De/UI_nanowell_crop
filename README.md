@@ -5,7 +5,7 @@ A standalone GUI desktop tool designed to seamlessly process, align, and crop la
 ## 📁 Input Data Requirements (Raw Images)
 Before running the processing engine, ensure your files are inside the same directory and adhere to the expected naming conventions. The software uses these patterns to automatically detect experimental groups.
 
-* **Supported Formats:** `.tif` / `.tiff` (Optimized for high-resolution stitched slides).
+* **Supported Formats:** `.tif` (Optimized for high-resolution stitched slides).
 * **Supported Image names:** `[WellName]_[TileMatrix]_Day[Index1]_XY[Index2]_[Channel].tif` ([Channel] has to be one of them in below)
 * 
 | Channel | Standardized Channel Code | Optical Channel & Configuration Description |
@@ -29,7 +29,7 @@ For every unique channel found, the program generates isolated subdirectories ma
 
 ```text
 Output Directory Tree/
-└── Wells/
+└── Processed Wells/
     └── 1A/                         <-- Target Well Name
         ├── BF/                     <-- Isolated Channel Folders
         │   ├── R0_C0/              <-- Unique Single-Well Node Folders
