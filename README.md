@@ -7,6 +7,7 @@ Before running the processing engine, ensure your files are inside the same dire
 
 * **Supported Formats:** `.tif` / `.tiff` (Optimized for high-resolution stitched slides).
 * **Supported Image names:** `[WellName]_[TileMatrix]_Day[Index1]_XY[Index2]_[Channel].tif` ([Channel] has to be one of them in below)
+* 
 | Channel | Standardized Channel Code | Optical Channel & Configuration Description |
 | :--- | :--- | :--- |
 | `RGB` | `RGB` | **Merged / Overlay Status**: A composite color image representing all captured channels merged together into a single frame for global previewing. |
@@ -32,18 +33,18 @@ Output Directory Tree/
     └── 1A/                         <-- Target Well Name
         ├── BF/                     <-- Isolated Channel Folders
         │   ├── R0_C0/              <-- Unique Single-Well Node Folders
-        │   │   ├── 2A_R0_C0_Day1.png
-        |   |   ├── 2A_R0_C0_Day2.png
+        │   │   ├── 1A_R0_C0_Day1.png
+        |   |   ├── 1A_R0_C0_Day2.png
         |   |   ├── ...
         │   ├── R0_C1/
-        │   │   └── 2A_R0_C1_Day1.png
+        │   │   └── 1A_R0_C1_Day1.png
         │   └── R1_C0/
-        │       └── 2A_R1_C0_Day1.png
+        │       └── 1A_R1_C0_Day1.png
         ├── EGFP/
         │   ├── R0_C0/
-        │   │   └── 2A_R0_C0_Day1.png
+        │   │   └── 1A_R0_C0_Day1.png
         │   └── R0_C1/
-        │       └── 2A_R0_C1_Day1.png
+        │       └── 1A_R0_C1_Day1.png
         └── mCherry/
 * **R** stands for **Row Index** (vertical position starting from 0)
 * **C** stands for **Column Index** (horizontal position starting from 0)
