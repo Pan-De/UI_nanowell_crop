@@ -23,7 +23,7 @@ Images will be remaned as `[WellName]_[TileMatrix]_Day[Index]_[Channel].tif`
   * `2A_10x10_Day1_EGFP.tif` (Fluorescence channel)
   * `2A_10x10_Day1_mCherry.tif` (Fluorescence channel)
 
-When you execute the batch crop command, the program calculates the absolute grid layout and generates an organized, multi-layered directory structure inside a parent folder named `Processed Wells` or `Wells/`.
+When you execute the batch crop command, the program calculates the absolute grid layout and generates an organized, multi-layered directory structure inside a parent folder named `Processed Wells`.
 
 For every unique channel found, the program generates isolated subdirectories mapped directly to the individual physical row and column coordinates:
 
@@ -49,3 +49,5 @@ Output Directory Tree/
 * **R** stands for **Row Index** (vertical position starting from 0)
 * **C** stands for **Column Index** (horizontal position starting from 0)
 R0_C0 is the Central Orientation Rectangle (Origin)
+<img width="1380" height="916" alt="PixPin_2026-07-29_23-46-13" src="https://github.com/user-attachments/assets/546bd61d-4503-47fd-b223-93b7bd0f47e3" />
+
