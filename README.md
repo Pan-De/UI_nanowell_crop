@@ -50,5 +50,6 @@ Output Directory Tree/
 * **C** stands for **Column Index** (horizontal position starting from 0)
 R0_C0 is the Central Orientation Rectangle (Origin)
 
+
 <img width="1380" height="916" alt="PixPin_2026-07-29_23-46-13" src="https://github.com/user-attachments/assets/546bd61d-4503-47fd-b223-93b7bd0f47e3" />
 
