@@ -14,7 +14,7 @@ Before running the processing engine, ensure your files are inside the same dire
 | <code>20&nbsp;Phase</code>| `BF` | **Brightfield Channel**: Transmitted light imaging mode using a **20X** objective lens, primarily utilized for structural tracking and grid calibration. |
 | `GFP` | `GFP` | **eGFP Fluorescence Channel**: Green fluorescent protein detection channel captured at a **20X** objective magnification, used to observe target cellular expressions. |
 | `mCherry` | `mCherry` | **mCherry Fluorescence Channel**: Red fluorescent protein detection channel captured at a **20X** objective magnification, optimized for tracking red fluorophore expressions. |
-> ⚠️ **Prerequisite Rule:** To perform any cropping operations, the **BF** (Brightfield) channel image **must be present** in the directory as it is strictly required for mathematical grid calibration. All other fluorescence channels (`EGFP`, `mCherry`, `RGB`) are completely optional and can be included or omitted based on your experimental dataset.
+> ⚠️ **Prerequisite Rule:** To perform any cropping operations, the **BF** (Brightfield) channel image **must be present** in the directory as it is strictly required for mathematical grid calibration. All other fluorescence channels (`GFP`, `mCherry`, `RGB`) are completely optional and can be included or omitted based on your experimental dataset.
 
 ## 📤 Output Data
 Images will be remaned as `[WellName]_[TileMatrix]_Day[Index]_[Channel].tif`
