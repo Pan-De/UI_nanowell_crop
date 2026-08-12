@@ -8,10 +8,10 @@ Before running the processing engine, ensure your files are inside the same dire
 * **Supported Formats:** `.tif` (Optimized for high-resolution stitched slides).
 * **Supported Image names:** `Well[A-Z][0-9][0-9]_XXX_[Channel].tif` ( XXX can be anything. [Channel] has to be one of them in below)
 * 
-| Channel <img width="100"/>| Standardized Channel Code | Optical Channel & Configuration Description |
+| Channel | Standardized Channel Code | Optical Channel & Configuration Description |
 | :--- | :--- | :--- |
 | `RGB` | `RGB` | **Merged / Overlay Status**: A composite color image representing all captured channels merged together into a single frame for global previewing. |
-| `20 Phase` | `BF` | **Brightfield Channel**: Transmitted light imaging mode using a **20X** objective lens, primarily utilized for structural tracking and grid calibration. |
+| <code>20&nbsp;Phase</code>| `BF` | **Brightfield Channel**: Transmitted light imaging mode using a **20X** objective lens, primarily utilized for structural tracking and grid calibration. |
 | `GFP` | `GFP` | **eGFP Fluorescence Channel**: Green fluorescent protein detection channel captured at a **20X** objective magnification, used to observe target cellular expressions. |
 | `mCherry` | `mCherry` | **mCherry Fluorescence Channel**: Red fluorescent protein detection channel captured at a **20X** objective magnification, optimized for tracking red fluorophore expressions. |
 > ⚠️ **Prerequisite Rule:** To perform any cropping operations, the **BF** (Brightfield) channel image **must be present** in the directory as it is strictly required for mathematical grid calibration. All other fluorescence channels (`EGFP`, `mCherry`, `RGB`) are completely optional and can be included or omitted based on your experimental dataset.
