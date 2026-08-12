@@ -7,7 +7,7 @@ Before running the processing engine, ensure your files are inside the same dire
 
 * **Supported Formats:** `.tif` (Optimized for high-resolution stitched slides).
 * **Supported Image names:** `Well[A-Z][0-9][0-9]_XXX_[Channel].tif` ( XXX can be anything. [Channel] has to be one of them in below)
-* 
+
 | Channel | Standardized Channel Code | Optical Channel & Configuration Description |
 | :--- | :--- | :--- |
 | `RGB` | `RGB` | **Merged / Overlay Status**: A composite color image representing all captured channels merged together into a single frame for global previewing. |
@@ -51,7 +51,8 @@ Output Directory Tree/
 R0_C0 is the Central Orientation Rectangle (Origin)
 ```
 
-<img width="1380" height="916" alt="PixPin_2026-07-29_23-46-13" src="https://github.com/user-attachments/assets/546bd61d-4503-47fd-b223-93b7bd0f47e3" />
+<img width="1351" height="900" alt="demo" src="https://github.com/user-attachments/assets/f7f32eb0-4bbc-43f5-9426-84753f429b06" />
+
 Recommended tif exporting using NIS:
 <img width="1277" height="857" alt="NIS_export" src="https://github.com/user-attachments/assets/a0c885a1-2759-43a8-99a7-f838d23832c4" />
 
