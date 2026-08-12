@@ -693,7 +693,7 @@ class MicroscopyApp(QMainWindow):
                     square_crop = image[y1:y2, x1:x2]
                     cropped_with_mask = cv2.bitwise_and(square_crop, square_crop, mask=digital_mask)
 
-                    new_filename = f"{well_name}_R{row}_C{col}_Day{day}.png"
+                    new_filename = f"{well_name}_R{row}_C{col}_Day{day}_{key_channel}.png"
                     #new_folder = os.path.join(save_base_path, key_channel, f"R{row}_C{col}")
                     new_folder = os.path.join(save_base_path, key_channel)
                     Path(new_folder).mkdir(parents=True, exist_ok=True)
@@ -750,7 +750,7 @@ class MicroscopyApp(QMainWindow):
                 if channel_item not in ("BF", "RGB", "mCherry", "GFP"): continue
                
                 for img_name in os.listdir(channel_dir):
-                    match_check = re.match(rf"{well_name}_(.*)_Day{day}\.png$", img_name)
+                    match_check = re.match(rf"{well_name}_(.*)_Day{day}_(.*)\.png$", img_name)
                     if match_check:
                         target_file_path = os.path.join(channel_dir, img_name)
                         os.remove(target_file_path)
