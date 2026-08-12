@@ -85,19 +85,31 @@ class MicroscopyApp(QMainWindow):
         # Section 1: rename images
         left_layout.addWidget(QLabel("<b>⚡ Step 1: Filename Standardizer</b>"))
         self.rename_dir_input = QLineEdit()
-        self.rename_dir_input.setPlaceholderText("Select directory containing raw TIFs...")
+        self.rename_dir_input.setPlaceholderText("Select the directory containing raw TIFs...")
         btn_browse_rename = QPushButton("Browse")
         btn_browse_rename.clicked.connect(lambda: self.browse_folder(self.rename_dir_input))
-        
+
         h_rename = QHBoxLayout()
         h_rename.addWidget(self.rename_dir_input)
         h_rename.addWidget(btn_browse_rename)
         left_layout.addLayout(h_rename)
 
+        #left_layout.addWidget(QLabel("Day Index:"))
+        self.rename_day = QLineEdit()
+        self.rename_day.setPlaceholderText("e.g., 1 or 2.")
+
+
         self.btn_run_rename = QPushButton("▶ Run Rename Task")
         self.btn_run_rename.setStyleSheet("background-color: #2E86C1; color: white; font-weight: bold;")
         self.btn_run_rename.clicked.connect(self.run_rename)
-        left_layout.addWidget(self.btn_run_rename)
+    
+        
+        h_rename2 = QHBoxLayout()
+        h_rename2.addWidget(QLabel("Day Index:"))
+        h_rename2.addWidget(self.rename_day)
+        h_rename2.addWidget(self.btn_run_rename)
+        left_layout.addLayout(h_rename2)
+
 
         left_layout.addWidget(QLabel("<hr>"))
 
@@ -107,16 +119,9 @@ class MicroscopyApp(QMainWindow):
         grid = QGridLayout()
         grid.addWidget(QLabel("Well Name:"), 0, 0)
         self.in_well_name = QLineEdit()
-        self.in_well_name.setPlaceholderText("e.g. 2A or 3B")
+        self.in_well_name.setPlaceholderText("e.g. A02 or C05")
         grid.addWidget(self.in_well_name, 0, 1)
-
-        grid.addWidget(QLabel("Target Tiles:"), 1, 0)
-        self.in_tiles = QLineEdit()
-        self.in_tiles.setPlaceholderText("e.g., 10x10")
-        self.in_tiles.setToolTip("The grid layout of the stitched image (e.g., 10x10)<br>"
-                                 "<b>Note:</b> Must be formatted as numbers separated by a lowercase 'x'.")
-        grid.addWidget(self.in_tiles, 1, 1)
-
+  
         grid.addWidget(QLabel("Day Index:"), 2, 0)
         self.in_day = QLineEdit()
         self.in_day.setPlaceholderText("e.g., 1 or 2")
@@ -132,26 +137,26 @@ class MicroscopyApp(QMainWindow):
         grid.addLayout(h_img, 3, 1)
 
         grid.addWidget(QLabel("Nanowell R (px):"), 4, 0)
-        self.in_well_r = QLineEdit()
-        self.in_well_r.setPlaceholderText("e.g., 189")
+        self.in_well_r = QLineEdit('180')
+        #self.in_well_r.setPlaceholderText("e.g., 189")
         self.in_well_r.setToolTip("Individual Well Radius: The radius (in pixels) of a single circular nanowell")
         grid.addWidget(self.in_well_r, 4, 1)
 
         grid.addWidget(QLabel("Boundary R (px):"), 5, 0)
-        self.in_bound_r = QLineEdit()
-        self.in_bound_r.setPlaceholderText("e.g., 7500")
+        self.in_bound_r = QLineEdit('7500')
+        #self.in_bound_r.setPlaceholderText("e.g., 7500")
         self.in_bound_r.setToolTip("The maximum circular radius (in pixels) within which nanowells will be detected and processed.")
         grid.addWidget(self.in_bound_r, 5, 1)
 
         grid.addWidget(QLabel("Square Length (px):"), 6, 0)
-        self.in_sq_len = QLineEdit()
-        self.in_sq_len.setPlaceholderText("e.g., 350")
+        self.in_sq_len = QLineEdit('370')
+        #self.in_sq_len.setPlaceholderText("e.g., 350")
         self.in_sq_len.setToolTip("Origin Box Size: The side length (in pixels) of the central square marker used to calibrate the grid's starting origin")
         grid.addWidget(self.in_sq_len, 6, 1)
 
         grid.addWidget(QLabel("Pitch (px):"), 7, 0)
-        self.in_pitch = QLineEdit()
-        self.in_pitch.setPlaceholderText("e.g., 409")
+        self.in_pitch = QLineEdit("462")
+        #self.in_pitch.setPlaceholderText("e.g., 409")
         self.in_pitch.setToolTip("Pitch: Center-to-center distance between adjacent nanowells.")
         grid.addWidget(self.in_pitch, 7, 1)
         
@@ -283,9 +288,6 @@ class MicroscopyApp(QMainWindow):
         if not self.in_well_name.text().strip():
             self.log("[WARNING]: Well Name cannot be empty!")
             return False
-        if not self.in_tiles.text().strip():
-            self.log("[WARNING]: Target Tiles cannot be empty!")
-            return False
         if not self.in_day.text().strip():
             self.log("[WARNING]: Day Index cannot be empty!")
             return False
@@ -293,10 +295,9 @@ class MicroscopyApp(QMainWindow):
         # big stitched image
         img_dir = self.in_img_dir.text().strip().replace('\\', '/')
         well_name = self.in_well_name.text().strip()
-        tiles = self.in_tiles.text().strip()
         day = self.in_day.text().strip()
 
-        bf_name = f"{well_name}_{tiles}_Day{day}_BF.tif"
+        bf_name = f"{well_name}_Day{day}_BF.tif"
         full_path = os.path.join(img_dir, bf_name)
 
         if self.cached_path == full_path and self.cached_gray is not None:
@@ -304,7 +305,7 @@ class MicroscopyApp(QMainWindow):
 
         if not os.path.exists(full_path):
             self.log(f"[ERROR]: Target Brightfield image not found at:\n{full_path}\n"
-                    f"Cannot find the image named as {well_name}_{tiles}_Day{day}_BF.tif\n"
+                    f"Cannot find the image named as {well_name}_Day{day}_BF.tif\n"
                     "Please standardise names first!")
             return False
 
@@ -354,12 +355,19 @@ class MicroscopyApp(QMainWindow):
 
     def run_rename(self):
         directory = self.rename_dir_input.text().strip().replace('\\','/')
+        day = self.rename_day.text().strip()
+        if not day:
+            self.log("[WARNING]: Day Index cannot be empty!")
+            return False
+
         if not directory:
-            self.log("[WARNING]: Please input or browse a valid directory path.")
-            return
+            self.log(f"[WARNING]: Directory not found: {directory}")
+            return False 
+
+
         
         self.log(f"[START]: Scanning files inside directory: {directory}")
-        channel_map = {'RGB_BF_20X': 'BF', 'RGB_mCherry_20X': 'mCherry', 'RGB_EGFP_20X': 'EGFP', 'RGB': 'RGB'}
+        channel_map = {'20X Phase': 'BF', 'mCherry': 'mCherry', 'GFP': 'GFP', 'RGB': 'RGB'}
         match_count = 0
         
         try:
@@ -368,25 +376,25 @@ class MicroscopyApp(QMainWindow):
                 if not filename.lower().endswith('.tif'):
                     continue
                 
-                match_check = re.match(r"^[0-9]+[A-Z]_[0-9]+[x][0-9]+_Day[0-9]+_(.*)\.tif$", filename)
-                if match_check and match_check.group(1) in {"RGB","BF","EGFP","mCherry"} :
-                    match_count += 1
-                    continue
-
-                match_orig = re.match(r"^([0-9]+[a-zA-Z]+)_([0-9]+[xX][0-9]+)_([DdAaYy]+[0-9]+)_XY\d+_(.*)\.tif$", filename)
-                if match_orig:
-                    well, tiles, day, rest = match_orig.group(1), match_orig.group(2), match_orig.group(3), match_orig.group(4)
-                    channel = channel_map.get(rest, 'UNKNOWN')
-                    match_count += 1
-                    new_filename = f"{well.upper()}_{tiles.lower()}_{day.capitalize()}_{channel}.tif"
-                    
+                match_check_good = re.match(r"[A-Z]\d{2}_Day\d+_(.*)\.tif$", filename)
+                if match_check_good:
+                    if match_check_good.group(1)in {"RGB","BF","GFP","mCherry"}: # found correctly named file
+                        match_count += 1
+                                            
+                match_check = re.match(r"^Well([A-Z]\d{2})_(.*)_(.*)\.tif$", filename)
+                # need to rename the file
+                if match_check:
+                    well, rest = match_check.group(1), match_check.group(3)
+                    channel = channel_map.get(rest, "UNKNOWN")
+                    new_filename = f"{well}_Day{day}_{channel}.tif"
+                    match_count += 1                                    
                     os.rename(os.path.join(directory, filename), os.path.join(directory, new_filename))
                     self.log(f"-> Renamed successfully: '{filename}' to '{new_filename}'")
 
             if match_count > 0:
                 self.log(f"[FINISH]: Rename Task Complete. {match_count} total file(s) structured.")
             else:
-                self.log("[Warning]: No matching files found. Check your images' names. Example accepted name: 2A_10x10_Day1_XY1_RGB_BF_20X.tif")
+                self.log("[Warning]: No matching files found. Check your images' names. Example accepted name: WellA02_XXX_20X Phase.tif")
 
         except Exception as e:
             self.log(f"[ERROR]: Rename engine failed: {e}")
@@ -428,9 +436,15 @@ class MicroscopyApp(QMainWindow):
         # find square
         if rect_center is None:
             sq_len = int(self.in_sq_len.text())
-            ret, binary = cv2.threshold(self.cached_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
+            _, binary = cv2.threshold(self.cached_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13,13))
+            # fill white gaps on the nanowell wall
+            binary_fill_wt = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+            # fill black gaps inside nanowell
+            binary_fil_bk = cv2.morphologyEx(binary_fill_wt, cv2.MORPH_CLOSE, kernel)
+
+
+            contours, _ = cv2.findContours(binary_fil_bk, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             rect_center = None
             min_area, max_area = (sq_len - 50)**2, (sq_len + 50)**2
             img_h, img_w = self.cached_gray.shape[:2]
@@ -440,16 +454,28 @@ class MicroscopyApp(QMainWindow):
 
             for cnt in contours:
                 area = cv2.contourArea(cnt)
-                if min_area <= area <= max_area:
-                    (cx, cy), (w, h), _ = cv2.minAreaRect(cnt)
-                    if h == 0 or w == 0: continue
+                if area < min_area or area > max_area: continue
+             
+                (cx, cy), (w, h), _ = cv2.minAreaRect(cnt)
+                if h == 0 or w == 0: continue
 
-                    score = abs(1- float(w)/ h) # best score is 0.0
-                    if 0.9 <= (float(w)/h) <= 1.1:
-                        if abs(cx - img_cx) < (img_w * 0.25) and abs(cy - img_cy) < (img_h * 0.25):
-                            if score < best_score:
-                                rect_center = (int(cx), int(cy))
-                                break
+                rect_box_area = w * h
+                extent = float(area) / rect_box_area
+                # Remove circles. circle's extent= ~ 0.785 (π/4)
+                if extent < 0.85: continue
+
+                peri = cv2.arcLength(cnt, True)
+                approx = cv2.approxPolyDP(cnt, 0.03 * peri, True)
+                # Polygons approximated from circles usually have > 8 vertices, while rounded squares typically have between 4 and 8
+                if not (4 <= len(approx) <= 8): continue
+
+                aspect_ratio = float(w)/ h
+                score = abs(1- aspect_ratio) # best score is 0.0
+                if 0.85 <= aspect_ratio <= 1.15:
+                    if abs(cx - img_cx) < (img_w * 0.25) and abs(cy - img_cy) < (img_h * 0.25):
+                        if score < best_score:
+                            rect_center = (int(cx), int(cy))
+                            break
             
             if rect_center:
                 self.out_cx.setText(str(rect_center[0]))
@@ -471,36 +497,44 @@ class MicroscopyApp(QMainWindow):
                 self.log("[WARNING]: Manual angle parsing failed. Falling back to autonomous detection...")
 
         if rotation_angle is None:
-            nanowell_r = int(self.in_well_r.text())
-            bound_r = float(self.in_bound_r.text())
-            
-            blurred = cv2.medianBlur(self.cached_gray, 5)
-            circles = cv2.HoughCircles(
-                blurred, cv2.HOUGH_GRADIENT, dp=1, minDist=int(nanowell_r * 2),
-                param1=50, param2=30, minRadius=int(nanowell_r * 0.8), maxRadius=int(nanowell_r * 1.2)
-            )
-
-            if circles is not None and len(circles[0]) >= 100:
-                centers = circles[0][:, :2]
-                dominant_angles = []
-                centers_sorted = centers[centers[:, 1].argsort()]
+            try:
+                nanowell_r = int(self.in_well_r.text())
+                bound_r = float(self.in_bound_r.text())
                 
-                for _ in range(2000):
-                    p1 = centers_sorted[np.random.randint(0, len(centers))]
-                    p2 = centers_sorted[np.random.randint(0, len(centers))]
-                    dx, dy = p2[0] - p1[0], p2[1] - p1[1]
-                    if math.sqrt(dx*dx + dy*dy) < bound_r / 2: continue
-                    angle = math.degrees(math.atan2(dy, dx))
-                    temp_angle = angle % 60.0
-                    if temp_angle > 30.0: temp_angle -= 60.0
-                    dominant_angles.append(temp_angle)
+                blurred = cv2.medianBlur(self.cached_gray, 5)
+                circles = cv2.HoughCircles(
+                    blurred, cv2.HOUGH_GRADIENT, dp=2, minDist=int(nanowell_r * 2),
+                    param1=50, param2=30, minRadius=int(nanowell_r * 0.8), maxRadius=int(nanowell_r * 1.2)
+                )
 
-                counts, bin_edges = np.histogram(dominant_angles, bins=1200, range=(-30, 30))
-                refined_angle = (bin_edges[np.argmax(counts)] + bin_edges[np.argmax(counts) + 1]) / 2.0
-                self.out_angle.setText(f"{refined_angle:.4f}")
-                self.log(f"[FOUND]: Optimized grid rotation angle calculated: {refined_angle:.4f}°")
-            else:
-                self.log("[ERROR]: Insufficient circular nodes extracted via Hough Transform. Kept angle as default.")
+                if circles is not None and len(circles[0]) >= 100:
+                    centers = circles[0][:, :2]
+                    dominant_angles = []
+                    centers_sorted = centers[centers[:, 1].argsort()]
+                    
+                    for _ in range(2000):
+                        p1 = centers_sorted[np.random.randint(0, len(centers))]
+                        p2 = centers_sorted[np.random.randint(0, len(centers))]
+                        dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+                        if math.sqrt(dx*dx + dy*dy) < bound_r / 2: continue
+                        angle = math.degrees(math.atan2(dy, dx))
+                        temp_angle = angle % 60.0
+                        if temp_angle > 30.0: temp_angle -= 60.0
+                        dominant_angles.append(temp_angle)
+
+                    counts, bin_edges = np.histogram(dominant_angles, bins=1200, range=(-30, 30))
+                    refined_angle = (bin_edges[np.argmax(counts)] + bin_edges[np.argmax(counts) + 1]) / 2.0
+                    self.out_angle.setText(f"{refined_angle:.4f}")
+                    self.log(f"[FOUND]: Optimized grid rotation angle calculated: {refined_angle:.4f}°")
+                
+                else:
+                    self.log("[ERROR]: Insufficient circular nodes extracted via Hough Transform. Kept angle as default.")
+
+            except cv2.error as e:
+                self.log("[ERROR]: Entered Nanowell R is likely too small or incorrect for this image size.")
+                self.log("[ACTION]: Software saved from crash! Please enter a valid Nanowell R and try again.")
+            except Exception as e:
+                self.log(f"[ERROR]: Unexpected failure during angle detection: {e}")
 
     def run_visualization(self):
         if not self.load_bf_images():
@@ -533,7 +567,8 @@ class MicroscopyApp(QMainWindow):
 
         for row in range(-max_rows, max_rows + 1):
             local_y = row * row_spacing
-            x_offset = (pitch / 2.0) if (row % 2 != 0) else 0.0
+            is_odd_row = (row % 2 != 0)
+            x_offset = (pitch / 2.0) if is_odd_row else 0.0
             for col in range(-max_cols, max_cols + 1):
                 local_x = col * pitch + x_offset
                 
@@ -542,8 +577,14 @@ class MicroscopyApp(QMainWindow):
                     rot_y = local_x * sin_t + local_y * cos_t
                     gx = int(cx + rot_x)
                     gy = int(cy + rot_y)
-                    
-                    self.valid_wells.append((gx, gy, row, col))
+
+                    if is_odd_row:
+                        update_col = col + 1 if col >= 0 else col
+    
+                    else:
+                        update_col = col                    
+                
+                    self.valid_wells.append((gx, gy, row, update_col))
     
                     cv2.circle(render_img, (gx, gy), nanowell_r, (0, 0, 255), 25)
 
@@ -566,6 +607,11 @@ class MicroscopyApp(QMainWindow):
             self.log("[ERROR]: Layout grid is empty. Please trigger 'Visualize' successfully beforehand.")
             return
 
+        try:
+            nanowell_r = int(self.in_well_r.text())
+        except ValueError:
+            self.log("[ERROR] Nanowell R cannot be empty!")
+
         # Determine target bounding canvas size dynamically based on UI checkbox configuration
         if self.cb_other_size.isChecked():
             try:
@@ -581,12 +627,17 @@ class MicroscopyApp(QMainWindow):
                          f"Processing terminated to prevent data truncation errors.")
                 return
         else:
-            output_size = 380
+            if 2* nanowell_r > 380:
+                self.log(f"[CRITICAL ABORT]: The default size (380 px) is structurally smaller "
+                         f"than the physical diameter of the current nanowell matrix ({2 * nanowell_r} px). "
+                         f"Processing terminated to prevent data truncation errors."
+                         f"Please check the box (Other) to define a new size.")
+                return
+            else: output_size = 380
 
           
         load_path = self.in_img_dir.text().strip().replace('\\', '/')
         well_name = self.in_well_name.text().strip()
-        tiles = self.in_tiles.text().strip()
         day = self.in_day.text().strip()
         nanowell_r = int(self.in_well_r.text())
 
@@ -601,7 +652,7 @@ class MicroscopyApp(QMainWindow):
         half_size = output_size//2
 
         files = os.listdir(load_path)
-        pattern = rf"^{well_name}_{tiles}_Day{day}_(.*)\.tif$"
+        pattern = rf"^{well_name}_Day{day}_(.*)\.tif$"
         matched_channels = {}
         
         for filename in files:
@@ -643,7 +694,8 @@ class MicroscopyApp(QMainWindow):
                     cropped_with_mask = cv2.bitwise_and(square_crop, square_crop, mask=digital_mask)
 
                     new_filename = f"{well_name}_R{row}_C{col}_Day{day}.png"
-                    new_folder = os.path.join(save_base_path, key_channel, f"R{row}_C{col}")
+                    #new_folder = os.path.join(save_base_path, key_channel, f"R{row}_C{col}")
+                    new_folder = os.path.join(save_base_path, key_channel)
                     Path(new_folder).mkdir(parents=True, exist_ok=True)
                     save_path = os.path.join(new_folder, new_filename)
                     cv2.imwrite(save_path, cropped_with_mask)
@@ -690,31 +742,25 @@ class MicroscopyApp(QMainWindow):
         purged_folder_count = 0
         
         try:
-            # 1. Iterate through all available channel folders (e.g., BF, mCherry, EGFP)
+            # Iterate through all available channel folders (e.g., BF, mCherry, GFP)
             for channel_item in os.listdir(save_base_path):
                 channel_dir = os.path.join(save_base_path, channel_item)
                 if not os.path.isdir(channel_dir):
                     continue
-                
-                # 2. Walk through every subfolder representing unique grid coordinates (e.g., R0_C0)
-                for coordinate_item in os.listdir(channel_dir):
-                    coordinate_dir = os.path.join(channel_dir, coordinate_item)
-                    if not os.path.isdir(coordinate_dir):
-                        continue
-                    
-                    # 3. Locate and delete images carrying the current session batch filename criteria
-                    # Format matching: f"{well_name}_R{row}_C{col}_Day{day}.png"
-                    target_filename = f"{well_name}_{coordinate_item}_Day{day}.png"
-                    target_file_path = os.path.join(coordinate_dir, target_filename)
-                    
-                    if os.path.exists(target_file_path):
+                if channel_item not in ("BF", "RGB", "mCherry", "GFP"): continue
+               
+                for img_name in os.listdir(channel_dir):
+                    match_check = re.match(rf"{well_name}_(.*)_Day{day}\.png$", img_name)
+                    if match_check:
+                        target_file_path = os.path.join(channel_dir, img_name)
                         os.remove(target_file_path)
                         purged_file_count += 1
+                        
+                # Clean up: If the coordinate folder is now completely empty, delete it to keep directories pristine
+                if len(os.listdir(channel_dir)) == 0:
+                    os.rmdir(channel_dir)
+                    purged_folder_count += 1                       
                     
-                    # Clean up: If the coordinate folder is now completely empty, delete it to keep directories pristine
-                    if len(os.listdir(coordinate_dir)) == 0:
-                        os.rmdir(coordinate_dir)
-                        purged_folder_count += 1
 
             if purged_file_count > 0:
                 self.log(f"[ROLLBACK COMPLETE 🏁]: Purged {purged_file_count} single-well target files and wiped "
