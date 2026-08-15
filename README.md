@@ -17,7 +17,7 @@ Before running the processing engine, ensure your files are inside the same dire
 > ⚠️ **Prerequisite Rule:** To perform any cropping operations, the **BF** (Brightfield) channel image **must be present** in the directory as it is strictly required for mathematical grid calibration. All other fluorescence channels (`GFP`, `mCherry`, `RGB`) are completely optional and can be included or omitted based on your experimental dataset.
 
 ## 📤 Output Data
-Images will be remaned as `[WellName]_[TileMatrix]_Day[Index]_[Channel].tif`
+Images will be remaned as `[WellName]_Day[Index]_[Channel].tif`
 * **Examples:**
   * `A02_Day1_BF.tif` (Brightfield image used for grid calibration)
   * `A02_Day1_GFP.tif` (Fluorescence channel)
