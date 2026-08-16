@@ -63,6 +63,7 @@ class MicroscopyApp(QMainWindow):
         self.resize(1400, 900)
         
         self.cached_gray = None
+        self.cached_gray_crop = None
         self.cached_bgr = None
         self.cached_path = ""
         self.valid_wells = []
@@ -319,6 +320,7 @@ class MicroscopyApp(QMainWindow):
             else:
                 self.cached_gray = cv2.cvtColor(self.cached_bgr, cv2.COLOR_BGR2GRAY)
             self.cached_path = full_path
+            self.cached_gray_crop = None
             self.log(f"[SUCCESS]: Resolution loaded: {self.cached_gray.shape[1]}x{self.cached_gray.shape[0]}")
             return True
         except Exception as e:
@@ -422,33 +424,51 @@ class MicroscopyApp(QMainWindow):
         # 1. find square if the center coordinates are empty
         cx_text = self.out_cx.text().strip()
         cy_text = self.out_cy.text().strip()
-        
+
+        #    Skip the center/square detection if user-defined center coordinates are found
         rect_center = None
-        
         if cx_text and cy_text:
             try:
                 rect_center = (int(cx_text), int(cy_text))
                 self.log(f"[MANUAL]: Using user-defined Central Origin at X:{rect_center[0]}, Y:{rect_center[1]}")
-                self.log("[TIP]: To reactivate autonomous detection, please clear the Center X and Y coordinates.")
+                self.log("[TIP]: To reactivate autonomous detection in center coordinates, please clear the Center X and Y coordinates.")
             except ValueError:
                 self.log("[WARNING]: Manual coordinates parsing failed. Falling back to autonomous detection...")
+        
 
-        # find square
+        # crop the raw image if it is too large (size > roi_size)
+        roi_size = 6000
+        img_h, img_w = self.cached_gray.shape[:2]
+        img_cx, img_cy = img_w // 2, img_h // 2
+
+        # 1.1 Define bounding coordinates for the central ROI
+        half_roi = roi_size // 2
+        roi_x1 = max(0, img_cx - half_roi)
+        roi_y1 = max(0, img_cy - half_roi)
+        roi_x2 = min(img_w, img_cx + half_roi)
+        roi_y2 = min(img_h, img_cy + half_roi)
+
+
+        # find the square
         if rect_center is None:
-            sq_len = int(self.in_sq_len.text())
-            _, binary = cv2.threshold(self.cached_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13,13))
-            # fill white gaps on the nanowell wall
-            binary_fill_wt = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
-            # fill black gaps inside nanowell
-            binary_fil_bk = cv2.morphologyEx(binary_fill_wt, cv2.MORPH_CLOSE, kernel)
+            if self.cached_gray_crop is None:
+                # 1.2 Extract zero-copy ROI slice
+                roi_gray = self.cached_gray[roi_y1:roi_y2, roi_x1:roi_x2]
+
+                # 1.3 pre-process the cropped image
+                _, binary = cv2.threshold(roi_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+                kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13,13))
+                # fill white gaps on the nanowell wall
+                binary_fill_wt = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+                # fill black gaps inside nanowell
+                binary_fil_bk = cv2.morphologyEx(binary_fill_wt, cv2.MORPH_CLOSE, kernel)
+
+                self.cached_gray_crop = binary_fil_bk
 
 
-            contours, _ = cv2.findContours(binary_fil_bk, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            rect_center = None
+            sq_len = int(self.in_sq_len.text()) # user-defined square length
+            contours, _ = cv2.findContours(self.cached_gray_crop, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             min_area, max_area = (sq_len - 50)**2, (sq_len + 50)**2
-            img_h, img_w = self.cached_gray.shape[:2]
-            img_cx, img_cy = img_w / 2, img_h / 2
 
             best_score = float('inf')
 
@@ -472,10 +492,8 @@ class MicroscopyApp(QMainWindow):
                 aspect_ratio = float(w)/ h
                 score = abs(1- aspect_ratio) # best score is 0.0
                 if 0.85 <= aspect_ratio <= 1.15:
-                    if abs(cx - img_cx) < (img_w * 0.25) and abs(cy - img_cy) < (img_h * 0.25):
-                        if score < best_score:
-                            rect_center = (int(cx), int(cy))
-                            break
+                    if score < best_score:
+                        rect_center = (int(cx + roi_x1), int(cy + roi_y1))
             
             if rect_center:
                 self.out_cx.setText(str(rect_center[0]))
@@ -487,6 +505,7 @@ class MicroscopyApp(QMainWindow):
 
         # 2. find the rotation angle
         angle_text = self.out_angle.text().strip()
+
         rotation_angle = None
         if angle_text:
             try:
@@ -497,14 +516,23 @@ class MicroscopyApp(QMainWindow):
                 self.log("[WARNING]: Manual angle parsing failed. Falling back to autonomous detection...")
 
         if rotation_angle is None:
+            roi_rotation = 12000
+            
+            half_roi_rotation = roi_rotation // 2
+            roi_r_x1 = max(0, img_cx - half_roi_rotation)
+            roi_r_y1 = max(0, img_cy - half_roi_rotation)
+            roi_r_x2 = min(img_w, img_cx + half_roi_rotation)
+            roi_r_y2 = min(img_h, img_cy + half_roi_rotation)
+            roi_r_gray = self.cached_gray[roi_r_y1:roi_r_y2, roi_r_x1:roi_r_x2]
+            roi_rotation = min(roi_rotation, min(img_cx, img_cy))
+
             try:
                 nanowell_r = int(self.in_well_r.text())
-                bound_r = float(self.in_bound_r.text())
                 
-                blurred = cv2.medianBlur(self.cached_gray, 5)
+                blurred = cv2.medianBlur(roi_r_gray, 5)
                 circles = cv2.HoughCircles(
                     blurred, cv2.HOUGH_GRADIENT, dp=2, minDist=int(nanowell_r * 2),
-                    param1=50, param2=30, minRadius=int(nanowell_r * 0.8), maxRadius=int(nanowell_r * 1.2)
+                    param1=70, param2=30, minRadius=int(nanowell_r * 0.85), maxRadius=int(nanowell_r * 1.15)
                 )
 
                 if circles is not None and len(circles[0]) >= 100:
@@ -516,7 +544,7 @@ class MicroscopyApp(QMainWindow):
                         p1 = centers_sorted[np.random.randint(0, len(centers))]
                         p2 = centers_sorted[np.random.randint(0, len(centers))]
                         dx, dy = p2[0] - p1[0], p2[1] - p1[1]
-                        if math.sqrt(dx*dx + dy*dy) < bound_r / 2: continue
+                        if math.sqrt(dx*dx + dy*dy) < roi_rotation // 5: continue
                         angle = math.degrees(math.atan2(dy, dx))
                         temp_angle = angle % 60.0
                         if temp_angle > 30.0: temp_angle -= 60.0
@@ -528,7 +556,7 @@ class MicroscopyApp(QMainWindow):
                     self.log(f"[FOUND]: Optimized grid rotation angle calculated: {refined_angle:.4f}°")
                 
                 else:
-                    self.log("[ERROR]: Insufficient circular nodes extracted via Hough Transform. Kept angle as default.")
+                    self.log("[ERROR]: Insufficient circular nodes (< 100 circles) extracted via Hough Transform. Kept angle as default.")
 
             except cv2.error as e:
                 self.log("[ERROR]: Entered Nanowell R is likely too small or incorrect for this image size.")
