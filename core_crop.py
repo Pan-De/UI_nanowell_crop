@@ -74,11 +74,11 @@ def rename_raw_files(directory: str, day: str, log_callback=print):
                 log_callback(f"-> Renamed successfully: '{filename}' to '{new_filename}'")
 
         if match_count > 0:
-            log_callback(f"[FINISH]✅: Rename Task Complete. {match_count} total file(s) structured.")
+            log_callback(f"✅ [FINISH]: Rename Task Complete. {match_count} total file(s) structured.")
         else:
-            log_callback("[WARNING]⚠️: No matching files found. Example accepted name: WellA02_XXX_20X Phase.tif")
+            log_callback("❌ [WARNING]: No matching files found. Example accepted name: WellA02_XXX_20X Phase.tif")
     except Exception as e:
-        log_callback(f"[ERROR]❌: Rename engine failed: {e}")
+        log_callback(f"❌ [ERROR]: Rename engine failed: {e}")
 
 
 def detect_center_square(cached_gray: np.ndarray, sq_len: int, roi_size: int = 6000):
@@ -102,8 +102,8 @@ def detect_center_square(cached_gray: np.ndarray, sq_len: int, roi_size: int = 6
     binary_fil_bk = cv2.morphologyEx(binary_fill_wt, cv2.MORPH_CLOSE, kernel)
 
     contours, _ = cv2.findContours(binary_fil_bk, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    min_area = (sq_len - 50) ** 2
-    max_area = (sq_len + 50) ** 2
+    min_area = (sq_len - 60) ** 2
+    max_area = (sq_len + 60) ** 2
     best_score = float('inf')
     rect_center = None
 
@@ -118,7 +118,7 @@ def detect_center_square(cached_gray: np.ndarray, sq_len: int, roi_size: int = 6
 
         rect_box_area = w * h
         extent = float(area) / rect_box_area
-        if extent < 0.85:
+        if extent < 0.82:
             continue
 
         peri = cv2.arcLength(cnt, True)
@@ -244,7 +244,7 @@ def execute_nanowell_crop(load_path: str, well_name: str, day: str, nanowell_r: 
             Path(os.path.join(save_base_path, channel)).mkdir(parents=True, exist_ok=True)
 
     if not matched_channels:
-        log_callback("[ERROR]❌: Could not find any standardized channel image sets. Crop terminated.")
+        log_callback("❌ [ERROR]: Could not find any standardized channel image sets. Crop terminated.")
         return
 
     digital_mask = np.zeros((output_size, output_size), dtype=np.uint8)
@@ -287,7 +287,7 @@ def execute_rollback(load_path: str, well_name: str, day: str, log_callback=prin
     save_base_path = os.path.join(Path(load_path).parent, "Processed Wells", well_name)
 
     if not os.path.exists(save_base_path):
-        log_callback(f"[ROLLBACK INFO]⚠️: Destination does not exist. No files purged:\n{save_base_path}")
+        log_callback(f"❌ [ROLLBACK INFO]: Destination does not exist. No files purged:\n{save_base_path}")
         return
 
     purged_file_count = 0
@@ -311,4 +311,4 @@ def execute_rollback(load_path: str, well_name: str, day: str, log_callback=prin
     if purged_file_count > 0:
         log_callback(f"[ROLLBACK COMPLETE 🏁]: Purged {purged_file_count} files and {purged_folder_count} empty folders.")
     else:
-        log_callback(f"[ROLLBACK WARNING]⚠️: No image files matched template: '{well_name}_R*_C*_Day{day}.png'")
+        log_callback(f"⚠️ [ROLLBACK WARNING]: No image files matched template: '{well_name}_R*_C*_Day{day}.png'")
