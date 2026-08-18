@@ -106,14 +106,15 @@ Processed Wells/
 
 ## 📊 Excel Quantification Output (_CellCount.xlsx)
 The system aggregates longitudinal metrics into a single master spreadsheet per well (e.g., Well02_CellCount.xlsx):
-| Coordinate | Day1_Cell_Count | Day1_Cell_area | Day2_Cell_Count | Day2_Cell_area | Day3_Cell_Count | ...|
-| :--- | :--- | :--- |
-| `R0_C1` | 1 | 480 | 2 | 1208 | 4| ...|
-| `R0_C2` | 0 | 0 | 0 | 0 | 0| ...|
-| `R0_C3` | 1 | 503 | 1 | 510 | 2| ...|
-> Zero-Collision Backup Engine: If an open Excel file or I/O lock interrupts the merge process, newly calculated metrics are saved to an isolated timestamped backup:
-Processed Wells/<WellName>_CellCount_Day<Day>_backup_<YYYYMMDD_HHMMSS>.xlsx
 
+| Coordinate | Day1_Cell_Count | Day1_Cell_area | Day2_Cell_Count | Day2_Cell_area | Day3_Cell_Count | ... |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `R0_C1` | 1 | 480 | 2 | 1208 | 4 | ... |
+| `R0_C2` | 0 | 0 | 0 | 0 | 0 | ... |
+| `R0_C3` | 1 | 503 | 1 | 510 | 2 | ... |
+
+> Zero-Collision Backup Engine: If an open Excel file or I/O lock interrupts the merge process, newly calculated metrics are saved to an isolated timestamped backup:
+`Processed Wells/<WellName>_CellCount_Day<Day>_backup_<YYYYMMDD_HHMMSS>.xlsx`
 
 <img width="1584" height="1049" alt="page1" src="https://github.com/user-attachments/assets/d1561877-1c6b-4bf0-9196-f5eb8ae68529" />
 <img width="1594" height="1054" alt="page2" src="https://github.com/user-attachments/assets/4be7f5d2-437c-43a3-af0d-d66c62e58686" />
