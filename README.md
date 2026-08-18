@@ -105,7 +105,7 @@ Processed Wells/
 ```
 
 ## 📊 Excel Quantification Output (_CellCount.xlsx)
-The system aggregates longitudinal metrics into a single master spreadsheet per well (e.g., Well02_CellCount.xlsx):
+The system aggregates longitudinal metrics into a single master spreadsheet per well (e.g., A02_CellCount.xlsx):
 
 | Coordinate | Day1_Cell_Count | Day1_Cell_Area | Day2_Cell_Count | Day2_Cell_Area | Day3_Cell_Count | ... |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
