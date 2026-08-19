@@ -116,6 +116,21 @@ The system aggregates longitudinal metrics into a single master spreadsheet per 
 > Zero-Collision Backup Engine: If an open Excel file or I/O lock interrupts the merge process, newly calculated metrics are saved to an isolated timestamped backup:
 `Processed Wells/<WellName>_CellCount_Day<Day>_backup_<YYYYMMDD_HHMMSS>.xlsx`
 
+## ⚙️ Environment Setup & Hardware Acceleration
+
+# Create conda environment
+conda create -n nanowell_env python=3.10 -y
+conda activate nanowell_env
+
+# Install PyTorch with CUDA support (e.g., CUDA 12.6)
+pip install torch torchvision --index-url [https://download.pytorch.org/whl/cu126](https://download.pytorch.org/whl/cu126)
+
+# Install application dependencies
+pip install PyQt6 opencv-python pandas openpyxl cellpose
+
+# Launching Application
+python main.py
+
 <img width="1584" height="1049" alt="page1" src="https://github.com/user-attachments/assets/d1561877-1c6b-4bf0-9196-f5eb8ae68529" />
 <img width="1594" height="1054" alt="page2" src="https://github.com/user-attachments/assets/4be7f5d2-437c-43a3-af0d-d66c62e58686" />
 
