@@ -9,10 +9,10 @@ A high-performance standalone GUI desktop tool designed to seamlessly process, a
 * **Automated Grid Alignment & Cropping**: Mathematical modeling and OpenCV computer vision algorithms calibrate central origin squares, rotation angles, and inter-well pitch.
 * **Multi-Channel Synchronized Cropping**: Slices high-resolution Brightfield and fluorescence stitched slides into coordinate-indexed micro-wells across timepoints (`DayX`).
 * **Deep Learning Cell Segmentation**: Powered by **Cellpose (`cpsam_v2`)** with GPU-accelerated batch inference (`CUDA 12.x`).
-* **Multi-Mode Tracking**:
-  * **Mode 1**: Single-cell isolation filter (`Count == 1` only).
-  * **Mode 2**: Targeted coordinate tracking based on pre-existing Excel records.
-  * **Mode 3**: High-throughput whole-array quantification.
+* **Multi-Mode Tracking**: (cell counting + cell area measurements)
+  * **Mode 1**: Single-cell isolation filter (Process the nanowells with only ONE cell inside.`Count == 1`).
+  * **Mode 2**: Targeted coordinate tracking based on pre-existing Excel records (Only process the wells in the Excel records; each well has a unique address).
+  * **Mode 3**: High-throughput cell analysis across all nanowells.
 * **Longitudinal Excel Database**: Automatically merges cross-day statistics into a standardized master file (`<WellName>_CellCount.xlsx`) with automated zero-collision backups.
 * **Visual Validation**: Optional export of color-coded instance segmentation masks mapped directly to individual nanowell coordinates.
 * **Safe Purge & Rollback Protection**: Prevents stale orphan crops when updating grid calibration layouts.
