@@ -257,9 +257,9 @@ def execute_nanowell_crop(load_path: str, well_name: str, day: str, nanowell_r: 
         skip_count = 0
 
         for (cx, cy, row, col) in valid_wells:
-            y1 = int(cy) - nanowell_r
+            y1 = int(cy) - half_size
             y2 = y1 + output_size
-            x1 = int(cx) - nanowell_r
+            x1 = int(cx) - half_size
             x2 = x1 + output_size
 
             if y1 < 0 or x1 < 0 or y2 > img_h or x2 > img_w:
